@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>EX3</title>
+        <meta charset="UTF-8">
+    </head>
+    <script>
+    var Personne = {
+        nom: "",
+        prenom: "",
+        dateNaissance: {jour: 1, mois: 1, année: 1977},
+        init: function(nom, prenom, dateNaissance){
+            this.nom            =   nom;
+            this.prenom         =   prenom;
+            this.dateNaissance  =   dateNaissance;
+        },
+        detail: function(){
+            var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            console.log("Personne : "+this.nom+" "+this.prenom+" né le "+this.dateNaissance.toLocaleDateString("fr-FR", options));
+        }
+    }
+    var Professeur = Object.create(Personne);
+    Professeur.email = "def@default.com";
+    Professeur.initProfesseur = function(nom, prenom, dateNaissance, email){
+        this.init(nom, prenom, dateNaissance);
+        this.email = email;
+    }
+    Professeur.info = function() {
+        var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        console.log("Professeur : "+this.nom+" "+this.prenom+" né le "+this.dateNaissance.toLocaleDateString("fr-FR", options)+" avec l'adresse email "+this.email);
+    }
+
+    let date = new Date(1987,4,13);
+    var pro1 = Object.create(Professeur);
+    pro1.initProfesseur("Erauld", "Farkas", date, "farkas.erauld@u-bordeaux.fr");
+    date = new Date(1979, 11, 17);
+    var pro2 = Object.create(Professeur);
+    pro2.initProfesseur("Markuop", "Qartel", date, "qartel.markuop@u-bordeaux.fr");
+    pro1.detail();
+    pro1.info();
+    pro2.detail();
+    pro2.info();
+    </script>
+</html>

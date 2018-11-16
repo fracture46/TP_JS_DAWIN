@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js">
+</script>
+    <body>
+        <div ng-app="app01" ng-controller="controlleur01">
+            <ul>
+                <li ng-repeat="pokemon in pokemons">
+                    {{ pokemon.ename }}
+                </li>
+            </ul>
+        </div>
+
+        <script>
+            var app = angular.module("app01", []);
+            app.controller("controlleur01", function($scope, $http){
+                $http.get("https://raw.githubusercontent.com/fanzeyi/Pokemon-DB/master/pokedex.json").then(function(response){
+                        console.log(response.data);
+                        $scope.pokemons = response.data
+                    });
+            });
+        </script>
+    </body>
+</html>

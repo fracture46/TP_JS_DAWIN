@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>EX3</title>
+        <meta charset="UTF-8">
+    </head>
+    <script>
+    var Personne = {
+        nom: "",
+        prenom: "",
+        taille: 0,
+        dateNaissance: {jour: 1, mois: 1, année: 1977},
+        init: function(nom, prenom, taille, dateNaissance){
+            this.nom            =   nom;
+            this.prenom         =   prenom;
+            this.taille         =   taille;
+            this.dateNaissance  =   dateNaissance;
+        },
+        detail: function(){
+            var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            console.log("Personne : "+this.nom+" "+this.prenom+" mesurant "+this.taille+" cm et né le "+this.dateNaissance.toLocaleDateString("fr-FR", options));
+        },
+        DireAge: function(){
+            let now = Date.now();
+            let age = now - this.dateNaissance.getTime();
+            age = Math.round(age / 1000 / 3600 / 24 / 365, 2);
+            console.log("L'age de "+this.prenom+" "+this.nom+" est de "+age+" ans")
+        }
+    }
+    var Professeur = Object.create(Personne);
+    Professeur.email = "def@default.com";
+    Professeur.initProfesseur = function(nom, prenom, taille, dateNaissance, email){
+        this.init(nom, prenom, taille, dateNaissance);
+        this.email = email;
+    }
+    Professeur.info = function() {
+        var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        console.log("Professeur : "+this.nom+" "+this.prenom+" né le "+this.dateNaissance.toLocaleDateString("fr-FR", options)+" avec l'adresse email "+this.email);
+    }
+
+    let date = new Date(1987,4,13);
+    var pro1 = Object.create(Professeur);
+    pro1.initProfesseur("Erauld", "Farkas", 172, date, "farkas.erauld@u-bordeaux.fr");
+    date = new Date(1979, 11, 17);
+    var pro2 = Object.create(Professeur);
+    pro2.initProfesseur("Markuop", "Qartel", 169, date, "qartel.markuop@u-bordeaux.fr");
+    pro1.detail();
+    pro1.info();
+    pro1.DireAge();
+    pro2.detail();
+    pro2.info();
+    pro2.DireAge();
+    </script>
+</html>

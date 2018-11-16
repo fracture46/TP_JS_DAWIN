@@ -1,0 +1,34 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>EX2</title>
+        <meta charset="UTF-8">
+    </head>
+    <script>
+    function Etudiant(nom, prenom, num_etu, date_nais) {
+        this.nom = nom,
+        this.prenom = prenom,
+        this.num_etu = num_etu,
+        this.date_nais = date_nais,
+        this.presenter = function(){
+            console.log(this.date_nais)
+            var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            console.log("Étudiant n°"+this.num_etu+" : "+this.prenom+" "+this.nom+" né le "+this.date_nais.toLocaleDateString("fr-FR", options))
+        }
+        this.age = function(){
+            let now = Date.now();
+            let age = now - this.date_nais.getTime();
+            age = Math.round(age / 1000 / 3600 / 24 / 365, 2);
+            console.log("L'age de "+this.prenom+" "+this.nom+" est de "+age+" ans")
+        }
+    }
+    let date = new Date(1997,8,3);
+    var etu = new Etudiant("Barnel", "Fabrice", "21852365", date);
+    date = new Date(1998, 4, 26);
+    var etu2 = new Etudiant("Largot", "Lancelot", "21853695", date);
+    etu.presenter();
+    etu2.presenter();
+    etu.age();
+    etu2.age();
+    </script>
+</html>

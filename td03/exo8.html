@@ -1,0 +1,303 @@
+<!-- Réaliser une application de Todolist (ajouter, modifier, supprimer des tâches et des éléments). Il faut pouvoir réorganiser la 
+todolist et que les modifications restent sauvegardées au rechargement de la page (utiliser localStorage de JS pour enregistrer des
+éléments dans le navigateur (c'est mieux que les cookies car mémoire illimitée)-->
+
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8" />
+    <title>Kit de Survie JS TD3-exo1</title>
+    <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+
+    <style>
+    	body{ font-family: 'Quicksand', sans-serif; }
+        #todolist{list-style-type: none;}
+        .hidden{display:none;}
+        .task{border: 1px solid black;margin: 10px 10px 10px 0;border-radius:1.2em;}
+        .task > div, .task > .subTask{margin-left: 15px;margin-right:15px;}
+        .subTask{border-radius:1em;padding-left:15px;}
+        .todo{background-color: lightgoldenrodyellow;}
+        .done{background-color: lightgreen;}
+        #taskName, #editTaskDiv, #addSubTask, #editSubTaskdiv {margin: 15px;}
+        input[type="text"]{margin: 0 15px 15px 0;width:300px;}
+        button{margin: 0 10px 0 10px;width:200px;height:50px;}
+        input[type="checkbox"]
+        {-ms-transform: scale(1.5);-moz-transform: scale(1.5);-webkit-transform: scale(1.5);-o-transform: scale(1.5);padding: 10px;}
+	</style>
+
+    <script src="jquery-3.2.1.min.js"></script>
+    <script src="jquery-ui.min.js"></script>
+
+    <script>
+        var taskEdited; // permet de savoir quel tâche est concernée par l'édition
+        var taskEditedOldName; // permet de conserver le nom de la tâche avant modification => supprimer l'objet associé dans le localStorage
+        var subTaskEdited; // permet de savoir quel sous-tâche est concernée par l'édition
+
+        function loadDataFromStorage(){
+            var orderLocation = localStorage.key(0);
+            var orderJSON = localStorage.getItem(orderLocation);
+            var orderParsed = JSON.parse(orderJSON);
+            console.log(orderParsed["order"]);
+            for(var k = 0; k < orderParsed["order"].length; k++){
+                for(var i = 1; i < localStorage.length; i++){
+                var listName = localStorage.key(i);
+                var JSONObject = localStorage.getItem(listName);
+                var parsedJSON = JSON.parse(JSONObject);
+                var taskName = parsedJSON["name"];
+                if(taskName == orderParsed["order"][k]){
+                    var taskContent;
+                    //console.log(parsedJSON);
+                    taskContent = '<li class="task" id="'+taskName+'"><div><h2>'+taskName+'</h2></div>';
+                    if(parsedJSON["items"] != undefined){
+                        for(var j = 0; j < parsedJSON["items"].length; j++){
+                            console.log('SubItem n°'+j+' : '+parsedJSON["items"][j]);
+                            console.log('Statut n°'+j+' : '+parsedJSON["statuts"][j]);
+                            taskContent += '<p class="'+parsedJSON["statuts"][j]+'">'+parsedJSON["items"][j]+'</p>';
+                        }  
+                    }
+                    taskContent += '</li>';
+                    $('ul').append(taskContent);
+                    break;
+                    }
+                }
+            }
+            
+            //Pour que l'interaction au click fonctionne sur les éléments extraits du localStorage
+            $('.task').on('click', function(event){
+                if ($(event.target).is('p.todo.subTask') || $(event.target).is('p.done.subTask')){
+                    return;
+                }
+                var taskName = $(this).children(0).children(0).text();
+
+                $('#taskNameForEdit').text(taskName);
+                $('#taskNameEdit').val(taskName);
+                $('#editTaskDiv').removeClass('hidden');
+
+                $('#addSubTask').removeClass('hidden');
+
+                taskEdited = $(this);
+            })
+            $('.subTask').on('click', function(){
+                var subTaskName = $(this).text();
+                subTaskEdited = $(this);
+                taskEdited = $(this).parent();
+
+                $('#subTaskNameForEdit').text(subTaskName);
+                $('#subTaskNameEdit').val(subTaskName);
+                $('#editSubTaskdiv').removeClass('hidden');
+
+                if($(this).hasClass('done')){
+                    $('#subTaskStatutEdit').prop('checked', true);
+                } else {
+                    $('#subTaskStatutEdit').prop('checked', false);
+                }
+            })
+        }
+
+        function insertIntoStorage() {
+            if(taskEdited != undefined){
+                if(localStorage.getItem(taskEditedOldName) != null){
+                    localStorage.removeItem(taskEditedOldName);
+                }
+                var items = [];
+                var statuts = [];
+                for(var i = 1; i<taskEdited.children(0).length; i++){
+                    items.push(taskEdited.children(0)[i].textContent);
+                    statuts.push(taskEdited.children(0)[i].className);
+                }
+                var task = {
+                    name : taskEdited.children(0).children(0).text(),
+                    items : items,
+                    statuts : statuts
+                }
+                var taskJSON = JSON.stringify(task);
+                localStorage.setItem(taskEdited.children(0).children(0).text(),taskJSON);
+            }
+        }
+
+        
+        $(document).ready(function(){
+            loadDataFromStorage();
+
+            $( function() {
+                $("#todolist").sortable({
+                    start: function(event, ui){
+                        console.log(localStorage);
+                    },
+                    stop: function(event, ui){
+                        var order = $("#todolist").sortable('toArray').toString();
+                        console.log(order);
+                        var orderArray = {
+                            order : order.split(',')
+                        };
+                        console.log(orderArray);
+                        var orderdJSON = JSON.stringify(orderArray);
+                        console.log(orderdJSON);
+                        localStorage.setItem("sortOrder",orderdJSON);
+                    }
+                });
+            });
+
+            $('#insertTask').on('click', function(event){
+                if($('#taskName').val() != ""){
+                    var newTask = $('#taskName').val();
+                    //Vérification que le nom de tâche n'existe pas déjà dans le localStorage
+                    for(var i = 1; i < localStorage.length; i++){
+                        var listName = localStorage.key(i);
+                        var JSONObject = localStorage.getItem(listName);
+                        var parsedJSON = JSON.parse(JSONObject);
+                        var taskName = parsedJSON["name"];
+                        if(taskName == newTask){
+                            alert("Ce nom de tâche est déjà utilisé !");
+                            return false;
+                        }
+                    }
+                    $('ul').append('<li class="task" id="'+newTask+'"><div><h2>'+newTask+'</h2></div></li>');
+                    $('#taskName').val("");
+                    var task = {
+                        name : newTask
+                    }
+                    var taskJSON = JSON.stringify(task);
+                    //console.log(newTask);
+                    //console.log(taskJSON);
+
+                    //Mise à jour de l'ordre pour que la tâche ajoutée soit affichée en cas de rechargement sans changement d'ordre
+                    var order = $("#todolist").sortable('toArray').toString();
+                    console.log(order);
+                    var orderArray = {
+                        order : order.split(',')
+                    };
+                    console.log(orderArray);
+                    var orderdJSON = JSON.stringify(orderArray);
+                    console.log(orderdJSON);
+                    localStorage.setItem("sortOrder",orderdJSON);
+
+                    localStorage.setItem(newTask,taskJSON);
+                } else {
+                    alert('Veuillez saisir un nom de tâche.');
+                }
+                $('.task').on('click', function(event){
+                    if ($(event.target).is('p.todo.subTask') || $(event.target).is('p.done.subTask')){
+                        return;
+                    }
+                    var taskName = $(this).children(0).children(0).text();
+
+                    $('#taskNameForEdit').text(taskName);
+                    $('#taskNameEdit').val(taskName);
+                    $('#editTaskDiv').removeClass('hidden');
+
+                    $('#addSubTask').removeClass('hidden');
+
+                    taskEdited = $(this);
+                    insertIntoStorage();
+                })
+            })
+
+            $('#insertSubTask').on('click', function(){
+                if($('#subTaskName').val() != ""){
+                    if($('#subTaskStatut:checked').length != 0){
+                        var subStat = 'done';
+                    } else {
+                        var subStat = 'todo';
+                    }
+                    taskEdited.append('<p class="'+subStat+' subTask">'+$('#subTaskName').val()+'</p>');
+                    $('#subTaskName').val("");
+                    $('#subTaskStatut').prop('checked', false);
+                    insertIntoStorage();
+                } else {
+                    alert('Veuillez saisir un nom de sous-tâche.');
+                }
+                $('.subTask').on('click', function(){
+                    //console.log('Edit SubTask');
+                    var subTaskName = $(this).text();
+                    subTaskEdited = $(this);
+                    taskEdited = $(this).parent();
+
+                    $('#subTaskNameForEdit').text(subTaskName);
+                    $('#subTaskNameEdit').val(subTaskName);
+                    $('#editSubTaskdiv').removeClass('hidden');
+
+                    if($(this).hasClass('done')){
+                        $('#subTaskStatutEdit').prop('checked', true);
+                    } else {
+                        $('#subTaskStatutEdit').prop('checked', false);
+                    }
+                })
+            })
+
+            $('#editTask').on('click', function(){
+                if(taskEdited.children(0).children(0).text() != $('#taskNameEdit').val()){
+                    taskEditedOldName = taskEdited.children(0).children(0).text();
+                    taskEdited.children(0).children(0).text($('#taskNameEdit').val());
+                    $('#taskNameForEdit').text($('#taskNameEdit').val());
+                    insertIntoStorage();
+                }
+            })
+            $('#deleteTask').on('click', function(){
+                if(confirm('Voulez-vous supprimer la tâche '+taskEdited.children(0).children(0).text()+' ?')){
+                    $('#editTaskDiv').addClass('hidden');
+                    $('#addSubTask').addClass('hidden');
+                    $('#editSubTaskdiv').addClass('hidden');
+                    taskEdited.remove();
+                    localStorage.removeItem(taskEdited.children(0).children(0).text())
+                }
+            })
+
+            $('#editSubTask').on('click', function(){
+                if(subTaskEdited.text() != $('#subTaskNameEdit').val()){
+                    subTaskEdited.text($('#subTaskNameEdit').val());
+                    $('#subTaskNameForEdit').text($('#subTaskNameEdit').val());
+                }
+
+                if($('#subTaskStatutEdit')[0].checked == true){
+                    if(subTaskEdited.hasClass('todo')){
+                        subTaskEdited.removeClass('todo');
+                        subTaskEdited.addClass('done');
+                    }
+                } else {
+                    if(subTaskEdited.hasClass('done')){
+                        subTaskEdited.removeClass('done');
+                        subTaskEdited.addClass('todo');
+                    }
+                }
+                insertIntoStorage();
+            })
+
+            $('#deleteSubTask').on('click', function(){
+                if(confirm('Voulez-vous supprimer la sous-tâche '+subTaskEdited.text()+' ?')){
+                    $('#editSubTaskdiv').addClass('hidden');
+                    subTaskEdited.remove();
+                    insertIntoStorage();
+                }
+            })
+        })
+    </script>
+</head>
+<body>
+    <ul id="todolist"></ul>
+    <input type="text" id="taskName" placeholder="Nom de la nouvelle tâche">
+    <button id="insertTask">Créer une nouvelle tâche</button>
+
+    <div id="editTaskDiv" class="hidden">
+        <h2 id="taskNameForEdit" ></h2>
+        <input type="text" id="taskNameEdit" placeholder="Nom de la tâche">
+        <button id="editTask" >Modifier la tâche</button>
+        <button id="deleteTask" >Supprimer la tâche</button>
+    </div>
+    <div id="addSubTask" class="hidden">
+        <input type="text" id="subTaskName" placeholder="Nom de la nouvelle sous-tâche">
+        <label for="subTaskStatut">Tâche terminée</label>
+        <input type="checkbox" id="subTaskStatut">
+        <button id="insertSubTask">Créer une nouvelle sous-tâche</button>
+    </div>
+
+    <div id="editSubTaskdiv" class="hidden">
+        <h2 id="subTaskNameForEdit"></h2>
+        <input type="text" id="subTaskNameEdit" placeholder="Nom de la sous-tâche">
+        <label for="subTaskStatutEdit">Tâche terminée</label>
+        <input type="checkbox" id="subTaskStatutEdit">
+        <button id="editSubTask">Modifier la sous-tâche</button>
+        <button id="deleteSubTask">Supprimer la sous-tâche</button>
+    </div>
+</body>
+ 
+</html>

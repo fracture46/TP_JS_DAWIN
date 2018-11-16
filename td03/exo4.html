@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js">
+</script>
+    <body>
+        <div ng-app="app01" ng-controller="controlleur01">
+            <p>
+                FirstNumber <input type="text" ng-model="numberOne"><br>
+                SecondNumber <input type="text" ng-model="numberTwo"><br>
+                Operator <select ng-model="operator">
+                    <option value="+">+</option>
+                    <option value="-">-</option>
+                    <option value="*">*</option>
+                    <option value="/">/</option>
+                </select>
+                {{ operation(numberOne, numberTwo, operator) }}
+            </p>
+        </div>
+
+        <script>
+            var app = angular.module("app01", []);
+            
+            app.controller("controlleur01", function($scope){
+                $scope.operation = function(nb1, nb2, op){
+                    if(nb1 != undefined && nb2 != undefined && op != undefined){
+                        num1 = parseInt(nb1);
+                        num2 = parseInt(nb2);
+                        switch(op){
+                            case "*": result = num1 * num2; break;
+                            case "+": result = num1 + num2; break;
+                            case "-": result = num1 - num2; break;
+                            case "/": result = num1 / num2; break;
+                        }
+
+                        return num1+' '+op+' '+num2+' = '+result; 
+                    } else {
+                        return null;
+                    }
+                    
+                    };
+            });
+        </script>
+    </body>
+</html>

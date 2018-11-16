@@ -1,0 +1,74 @@
+<!--Créer un formulaire HTML complet (email, mdp, rappel mdp) et utiliser le moteur de prévalidation de formulaire de AngularJS
+pour valider le formulaire-->
+
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js">
+</script>
+    <body>
+        <div ng-app="app01" ng-controller="controlleur01">
+            <form name="subForm">
+                <p>
+                    <label for="name">FirstName</label>
+                    <input type="text" id="name" name="name" ng-model="name" required>
+                    <span style="color:red" ng-show="subForm.name.$touched && subForm.name.$invalid">Name is required.</span><br>
+                </p>
+                <p>
+                    <label for="lastName">LastName</label>
+                    <input type="text" id="lastName" name="lastName" ng-model="lastName" required>
+                    <span style="color:red" ng-show="subForm.lastName.$touched && subForm.lastName.$invalid">Last name is required.</span><br>
+                </p>
+                <p>
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" ng-model="email" required>
+                    <span style="color:red" ng-show="subForm.email.$error.required && subForm.email.$touched">Email is required.</span>
+                    <span style="color:red" ng-show="!subForm.email.$error.required && subForm.email.$touched && subForm.email.$error.email">Invalid email address.</span>
+                </p>
+                <p>
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" ng-model="password" ng-pattern="/(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z])/" required>
+                    <span style="color:red" ng-show="subForm.password.$error.required && subForm.password.$touched">Password is required</span>
+                    <span style="color:red" ng-show="!subForm.password.$error.required && subForm.password.$error.pattern && subForm.password.$dirty">Password must contain one lower &amp; uppercase letter, and one number or symbol</span>
+                </p>
+                <p>
+                    <label for="passwordRetype">Type password again</label>
+                    <input type="password" id="passwordRetype" name="passwordRetype" ng-model="passwordRetype" pw-check='password'>
+                    <span style="color:red" ng-show="subForm.passwordRetype.$touched && subForm.password.$valid && subForm.passwordRetype.$error.pwmatch" >Doesn't match the previous field</span>
+
+                </p>
+                <input type="submit" value="Valider" ng-disabled="subForm.password.$dirty && subForm.password.$invalid || 
+                subForm.name.$dirty && subForm.name.$invalid || subForm.passwordRetype.$dirty && subForm.passwordRetype.$invalid ||
+                subForm.email.$dirty && subForm.email.$invalid">                
+            </form>
+        </div>
+
+        <script>
+            var app = angular.module("app01", []);
+            
+            app.controller("controlleur01", function($scope){
+                $scope.name = "Bill";
+                $scope.lastName = "Boul";
+                $scope.email = "bill.boul@nowhere.nz";
+                $scope.password = "Bonjour123&456";
+                $scope.passwordRetype = "Bonjour123&456";
+
+            });
+
+           app.directive('pwCheck', [function () {
+                    return {
+                    require: 'ngModel',
+                    link: function (scope, elem, attrs, ctrl) {
+                        var firstPassword = '#' + attrs.pwCheck;
+                        console.log(firstPassword);
+                        elem.on('keyup', function () {
+                        scope.$apply(function () {
+                            var v = elem.val()=== scope.password;
+                            ctrl.$setValidity('pwmatch', v);
+                        });
+                        });
+                    }
+                    }
+                }]);
+        </script>
+    </body>
+</html>

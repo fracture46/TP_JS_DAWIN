@@ -1,0 +1,61 @@
+<!-- KIT DE SURVIE JS - IUT INFORMATIQUE BORDEAUX -->
+<!DOCTYPE html>
+<head>
+ 
+    <meta charset="utf-8" />
+ 
+    <title>Exercice 14</title>
+    <meta name="description" content="Description de la page">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+
+    <style>
+    	body{ font-family: 'Quicksand', sans-serif; }
+	</style>
+
+    <script src="jquery-3.2.1.min.js"></script>
+    <script type="text/javascript">
+    	$(document).ready(function(){
+            //a
+    		$('body').append('<div></div>');
+            $('div').append('<form></form>');
+            $('form').append('<label for="nom">Nom</label>');
+            $('form').append('<input type="text" name="nom" placeholder="Nom"><br/>');
+            $('form').append('<label for="prenom">Prénom</label>');
+            $('form').append('<input type="text" name="prenom" placeholder="Prénom"><br/>');
+            $('form').append('<label for="age">Âge</label>');
+            $('form').append('<input type="number" name="age" placeholder="Âge"><br/>');
+            $('form').append('<label for="sexe">Sexe</label>');
+            $('form').append('<select name="sexe"></select><br/>');
+            $('select').append('<option name="Homme" value="H">H</option>');
+            $('select').append('<option name="Femme" value="F">F</option>');
+            $('form').append('<label for="desc">Description</label>');
+            $('form').append('<textarea name="desc" placeholder="Une description"></textarea><br/>');
+            $('form').append('<input type=submit value="submit">');
+            //b: En utilisant l'event submit sur le formulaire
+            //c
+            $('form').submit(function(e){
+                e.preventDefault();
+                var nom = $(this).children("input[name=nom]").val();
+                var prenom = $(this).children('input[name=prenom]').val();
+                var age = $(this).children('input[name=age]').val();
+                var sexe = $(this).children('select').val();
+                var description = $(this).children('textarea').val();
+                console.log($(this).children('input[name=nom]'));
+                console.log("result : nom=>"+nom+" prenom=>"+prenom+" age=>"+age+
+                " sexe=>"+sexe+" desc=>"+description);
+                Utilisateur = {
+                    nom:nom,
+                    prenom:prenom,
+                    age:age,
+                    sexe:sexe,
+                    description:description
+                }
+                console.log(Utilisateur);
+            })
+    	});
+   	</script>
+</head>
+<body>
+</body>
+ 
+</html>
